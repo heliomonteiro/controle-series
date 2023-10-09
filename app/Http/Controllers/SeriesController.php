@@ -20,13 +20,10 @@ class SeriesController extends Controller
             'Grey\'s Anatomy'
         ];
 
-        $html = '<ul>';
+        // Passando array de dados
+        //return view('listar-series', ['series' => $series]);
 
-        foreach ($series as $serie) {
-            $html .= "<li>$serie</li>";
-        }
-        $html .= '</ul>';
-
-        return $html;
+        // Passando um compact - utilizado quando o nome e variável são iguais
+        return view('listar-series',compact('series'));
     }
 }
