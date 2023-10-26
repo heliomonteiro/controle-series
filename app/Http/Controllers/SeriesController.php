@@ -21,6 +21,6 @@ class SeriesController extends Controller
         //return view('listar-series',compact('series'));
 
         // Passando um with
-        return view('listar-series')->with('series', $series);
+        return view('series.index')->with('series', $series);
     }
 }
