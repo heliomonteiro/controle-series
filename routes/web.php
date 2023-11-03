@@ -24,6 +24,21 @@ Route::get('/series', function () {
 });
 */
 
+/*
+// ROTAS SEM GRUPO
 Route::get('/series', [SeriesController::class, 'index']);
 Route::get('/series/criar', [SeriesController::class, 'create']);
 Route::post('/series/salvar', [SeriesController::class, 'store']);
+*/
+
+/*
+// ROTAS EM GRUPO DE CONTROLLERS
+Route::controller(SeriesController::class)->group(function(){
+    Route::get('/series', [SeriesController::class, 'index'])->name('series.index');
+    Route::get('/series/create', [SeriesController::class, 'create'])->name('series.create');
+    Route::post('/series/salvar', [SeriesController::class, 'store'])->name('series.store');
+});
+*/
+
+// OU RESOURCE
+Route::resource('/series',SeriesController::class);
