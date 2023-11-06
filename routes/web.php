@@ -15,7 +15,8 @@ use App\Http\Controllers\SeriesController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    //return view('welcome');
+    return to_route('series.index');
 });
 
 /*
@@ -41,4 +42,9 @@ Route::controller(SeriesController::class)->group(function(){
 */
 
 // OU RESOURCE
-Route::resource('/series',SeriesController::class);
+Route::resource('/series',SeriesController::class)
+    ->except('show');
+    //->only(['index','create','store','destroy','edit','update']);
+
+//Route::delete('/series/destroy/{serie}', [SeriesController::class, 'destroy'])
+//    ->name('series.destroy');
