@@ -1,4 +1,4 @@
-<x-layout title="Séries">
+<x-layout title="{{ __('messages.app_name') }}">
 
     <a href="{{ route('series.create')}}" class="btn btn-dark mb-2">Adicionar</a>
 
