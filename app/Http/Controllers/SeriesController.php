@@ -15,8 +15,12 @@ class SeriesController extends Controller
         //$series = Serie::all();
 
         // query é um query builder ou criador de query do eloquent
-        $series = Serie::query()->orderBy('nome')->get();
+        //$series = Serie::query()->orderBy('nome')->get(); //nao precisa mais disso, pois , foi adicionado no scopo da model a ordenação
+        $series = Serie::all(); // com escopo global
+        //$series = Serie::active()->get(); //com escopo local
+        //$series = Serie::with(['temporadas'])->get(); // ou incluir o with no model para trazer os relacionamentos
 
+dd($series);
         // Facades DB - Fornece acesso direto ao BD - Não funciona created_at e updated_at
         //$series = DB::select('select * from series');
 
@@ -103,12 +107,12 @@ class SeriesController extends Controller
 
     public function edit (Serie $series)
     {
+        dd($series->temporadas);
         return view('series.edit')->with('serie',$series);
     }
 
     public function update (Serie $series, SeriesFormRequest $request)
     {
-
         //Validação sem FORM REQUEST
         //$request->validate([
         //   'nome' => ['required','min:3']
