@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SeriesFormRequest;
-use App\Models\Serie;
+use App\Models\Episode;
+use App\Models\Season;
+use App\Models\Series;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -16,11 +18,10 @@ class SeriesController extends Controller
 
         // query é um query builder ou criador de query do eloquent
         //$series = Serie::query()->orderBy('nome')->get(); //nao precisa mais disso, pois , foi adicionado no scopo da model a ordenação
-        $series = Serie::all(); // com escopo global
+        $series = Series::all(); // com escopo global
         //$series = Serie::active()->get(); //com escopo local
         //$series = Serie::with(['temporadas'])->get(); // ou incluir o with no model para trazer os relacionamentos
 
-dd($series);
         // Facades DB - Fornece acesso direto ao BD - Não funciona created_at e updated_at
         //$series = DB::select('select * from series');
 
@@ -70,9 +71,50 @@ dd($series);
         //dd($request->all());
         //Serie::create(['nome' => 'Teste']);
 
-        $serie = Serie::create($request->all());
+        $serie = Series::create($request->all());
         //session(['mensagem.sucesso' => 'Série adicionada com sucesso']); //helper de session não remove da sessão em seguida, portanto usar o flash
         //$request->session()->flash('mensagem.sucesso',"Série '{$serie->nome}' adicionada com sucesso");
+
+        // Gravar seasons - SeasonsQty e Episodes
+/*
+        for($i = 1; $i <= $request->seasonsQty; $i++)
+        {
+            $season = $serie->seasons()->create([
+                'number' => $i,
+            ]);
+
+            for($j = 1; $j <= $request->episodesPerSeason; $j++)
+            {
+                $season->episodes()->create([
+                    'number' => $j,
+                ]);
+            }
+
+        }
+*/
+        $seasons = [];
+        // Bulk insert
+        for($i = 1; $i<= $request->seasonsQty; $i++)
+        {
+            $seasons[] = [
+                'series_id' => $serie->id,
+                'number' => $i,
+            ];
+        }
+        Season::insert($seasons);
+
+        $episodes = [];
+        foreach($serie->seasons as $season)
+        {
+            for($j = 1; $j <= $request->episodesPerSeason; $j++)
+            {
+                $episodes[] = [
+                    'season_id' => $season->id,
+                    'number' => $j,
+                ];
+            }
+        }
+        Episode::insert($episodes);
 
         //return redirect('/series');
         //return redirect()->route('series.index');
@@ -85,9 +127,8 @@ dd($series);
     //public function destroy(Request $request)
     //public function destroy(int $id) // facilidade do laravel receber o parametro como uma variavel ou por tras dos panos converter em um model como abaixo
     //public function destroy(Serie $series, Request $request)
-    public function destroy(Serie $series)
+    public function destroy(Series $series)
     {
-
         //$serie = Serie::find($request->series);
         //$serie = Serie::find($id);
 
@@ -105,13 +146,12 @@ dd($series);
             ->with('mensagem.sucesso',"Série '{$series->nome}' removida com sucesso"); //melhor opcao, with também envia flash message. Com isso descartamos a necessidade da request
     }
 
-    public function edit (Serie $series)
+    public function edit (Series $series)
     {
-        dd($series->temporadas);
         return view('series.edit')->with('serie',$series);
     }
 
-    public function update (Serie $series, SeriesFormRequest $request)
+    public function update (Series $series, SeriesFormRequest $request)
     {
         //Validação sem FORM REQUEST
         //$request->validate([
