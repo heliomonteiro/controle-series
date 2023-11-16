@@ -6,11 +6,18 @@ use App\Http\Requests\SeriesFormRequest;
 use App\Models\Episode;
 use App\Models\Season;
 use App\Models\Series;
+use App\Repositories\SeriesRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class SeriesController extends Controller
 {
+
+    public function __construct(private SeriesRepository $repository)
+    {
+        
+    }
+
     public function index(Request $request)
     {
         // Utilizando Models do próprio Laravel
@@ -46,6 +53,8 @@ class SeriesController extends Controller
         return view('series.create');
     }
 
+    //public function store(SeriesFormRequest $request)
+    //public function store(SeriesFormRequest $request, SeriesRepository $repository)
     public function store(SeriesFormRequest $request)
     {
         //Validação sem FORM REQUEST
@@ -71,7 +80,14 @@ class SeriesController extends Controller
         //dd($request->all());
         //Serie::create(['nome' => 'Teste']);
 
-        $serie = Series::create($request->all());
+        //$serie = null;
+
+        //DB::transaction( function() use ($request, &$serie) { // utilizar um return para não ser necessário criar variavel dentro e fora da transaction
+        
+        //try {
+           //$serie = DB::transaction( function() use ($request) {
+
+            //$serie = Series::create($request->all());
         //session(['mensagem.sucesso' => 'Série adicionada com sucesso']); //helper de session não remove da sessão em seguida, portanto usar o flash
         //$request->session()->flash('mensagem.sucesso',"Série '{$serie->nome}' adicionada com sucesso");
 
@@ -92,36 +108,49 @@ class SeriesController extends Controller
 
         }
 */
-        $seasons = [];
-        // Bulk insert
-        for($i = 1; $i<= $request->seasonsQty; $i++)
-        {
-            $seasons[] = [
-                'series_id' => $serie->id,
-                'number' => $i,
-            ];
-        }
-        Season::insert($seasons);
+/*
+                $seasons = [];
+                // Bulk insert
+                for($i = 1; $i<= $request->seasonsQty; $i++)
+                {
+                    $seasons[] = [
+                        'series_id' => $serie->id,
+                        'number' => $i,
+                    ];
+                }
+                Season::insert($seasons);
 
-        $episodes = [];
-        foreach($serie->seasons as $season)
-        {
-            for($j = 1; $j <= $request->episodesPerSeason; $j++)
-            {
-                $episodes[] = [
-                    'season_id' => $season->id,
-                    'number' => $j,
-                ];
-            }
-        }
-        Episode::insert($episodes);
+                $episodes = [];
+                foreach($serie->seasons as $season)
+                {
+                    for($j = 1; $j <= $request->episodesPerSeason; $j++)
+                    {
+                        $episodes[] = [
+                            'season_id' => $season->id,
+                            'number' => $j,
+                        ];
+                    }
+                }
+                Episode::insert($episodes);
 
+                return $serie;
+
+            });
+*/
+
+        //$serie = $repository->add($request);
+        $serie = $this->repository->add($request);
         //return redirect('/series');
         //return redirect()->route('series.index');
 
         //return to_route('series.index'); // no laravel 9
-        return to_route('series.index')
-            ->with('mensagem.sucesso',"Série '{$serie->nome}' adicionada com sucesso"); // no laravel 9
+            return to_route('series.index')
+                ->with('mensagem.sucesso',"Série '{$serie->nome}' adicionada com sucesso"); // no laravel 9
+
+       // } catch (\Throwable $e) {
+            
+        //}
+
     }
 
     //public function destroy(Request $request)
