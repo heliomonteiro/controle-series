@@ -5,6 +5,7 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\SeriesController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\SeasonsController;
+use App\Http\Middleware\Autenticador;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,18 +19,24 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return to_route('series.index');
-})->middleware(\App\Http\Middleware\Autenticador::class);
+Route::middleware('autenticador')->group(function() {
+    Route::get('/', function () {
+        return to_route('series.index');
+    });
+    //})->middleware(Autenticador::class);
 
-Route::resource('/series',SeriesController::class)
-    ->except('show');
-    //->only(['index','create','store','destroy','edit','update']);
+    Route::resource('/series',SeriesController::class)
+        ->except('show');
+        //->middleware(Autenticador::class);; //Não funciona except para middleware, sendo necessário tratar no controller
+        //->only(['index','create','store','destroy','edit','update']);
 
-Route::get('/series/{series}/seasons',[SeasonsController::class, 'index'])->name('seasons.index');
+    Route::get('/series/{series}/seasons',[SeasonsController::class, 'index'])
+        ->name('seasons.index');
+        //->middleware(Autenticador::class);
 
-Route::get('/seasons/{season}/episodes',[EpisodesController::class, 'index'])->name('episodes.index');
-Route::post('/seasons/{season}/episodes',[EpisodesController::class, 'update'])->name('episodes.update');
+    Route::get('/seasons/{season}/episodes',[EpisodesController::class, 'index'])->name('episodes.index');
+    Route::post('/seasons/{season}/episodes',[EpisodesController::class, 'update'])->name('episodes.update');
+});
 
 Route::get('/login',[LoginController::class, 'index'])->name('login');
 Route::post('/login',[LoginController::class, 'store'])->name('signin');
